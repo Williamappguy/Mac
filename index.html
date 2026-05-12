@@ -901,9 +901,35 @@
     requestAnimationFrame(tick);
   }
 
+  // Fire-and-forget email notification on accept
+  function notifyAccept() {
+    const now = new Date();
+    const iso = now.toISOString();
+    const local = now.toLocaleString('en-AU', {
+      timeZone: 'Australia/Brisbane',
+      dateStyle: 'full',
+      timeStyle: 'long',
+    });
+    const body = JSON.stringify({
+      access_key: '1a6e54d0-1652-4bab-bc6c-80dc7c5e0e59',
+      subject: 'Mackenzie accepted',
+      from_name: "Mackenzie's Invitation",
+      message: `Mackenzie tapped "I accept".\n\nWhen: ${local}\nUTC: ${iso}`,
+    });
+    try {
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body,
+        keepalive: true,
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
   btn.addEventListener('click', () => {
     if (btn.disabled) return;
     btn.disabled = true;
+    notifyAccept();
     btn.classList.add('is-gone');
     if (!reduced) fireConfetti(3600);
 
